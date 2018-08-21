@@ -154,11 +154,9 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
         casadi_in[3] = y.data()+i*ny;
         
         // control bounds
-        for (j=0;j<nu;j++){
-            qp.lb_u(i*nu+j) = lbu(j)-u(j,i);
-            qp.ub_u(i*nu+j) = ubu(j)-u(j,i);
-        }  
-
+        qp.lb_u.segment(i*nu,nu) = lbu-u.col(i);
+        qp.ub_u.segment(i*nu,nu) = ubu-u.col(i);
+          
         // state bounds
         for (j=0;j<nbx;j++){
             qp.lb_x(i*nbx+j) = lbx(j)-x(nbx_idx[j],i+1);
@@ -169,8 +167,7 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
         casadi_out[0] = qp.a.data()+i*nx;
         F_Fun(casadi_in, casadi_out);
         // equality residual        
-        for (j=0;j<nx;j++)
-            qp.a(j,i) -= x(j,i+1);
+        qp.a.col(i) -= x.col(i+1);
       
         // sensitivity computation
         casadi_out[0] = qp.A.data() + i*nx*nx;
@@ -192,15 +189,15 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
         casadi_out[0] = qp.gx.data()+i*nx;
         casadi_out[1] = qp.gu.data()+i*nu;
         gi_Fun(casadi_in, casadi_out);
-                
-        // constraint residual
-        if (nbg>0){
+
+        //constraints          
+        if (nbg>0){       
             casadi_out[0] = qp.lb_g.data() + i*nbg;
             path_con_Fun(casadi_in, casadi_out);
-            for (j=0;j<nbg;j++){
-                qp.ub_g(i*nbg+j) = ubg(j) - casadi_out[0][j];
-                qp.lb_g(i*nbg+j) = lbg(j) - casadi_out[0][j];            
-            }
+            // constraint residual
+            qp.ub_g.segment(i*nbg,nbg) = ubg - qp.lb_g.segment(i*nbg,nbg);
+            qp.lb_g.segment(i*nbg,nbg) = lbg - qp.lb_g.segment(i*nbg,nbg);
+            
             // constraint Jacobian
             casadi_out[0] = qp.Cgx.data()+i*nbg*nx;
             casadi_out[1] = qp.Cgu.data()+i*nbg*nu;
@@ -224,10 +221,8 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
     if (nbgN>0){
         casadi_out[0] = qp.lb_g.data() + N*nbg;
         path_con_N_Fun(casadi_in, casadi_out);
-        for (j=0;j<nbgN;j++){
-            qp.ub_g(i*nbg+j) = ubgN(j) - casadi_out[0][j];
-            qp.lb_g(i*nbg+j) = lbgN(j) - casadi_out[0][j];            
-        }
+        qp.ub_g.segment(N*nbg,nbgN) = ubgN - qp.lb_g.segment(N*nbg,nbgN);
+        qp.lb_g.segment(N*nbg,nbgN) = lbgN - qp.lb_g.segment(N*nbg,nbgN);
 
         casadi_out[0] = qp.CgN.data();
         CN_Fun(casadi_in, casadi_out);
@@ -235,30 +230,21 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
     
 }
 
-// int expand(model_size *size, qp_problem *qp, qp_out *out)
-//  {
-//     int nx = size.nx;
-//     int nu = size.nu;
-//     int N = size.N;
+void expand(model_size& size, qp_in& in, qp_problem& qp, qp_out& out, const VectorXd& x0)
+ {
+    int nx = size.nx;
+    int nu = size.nu;
+    int N = size.N;
 
-//     double *dx = out.dx;
-//     double *du = out.du;
+    int i;
+    out.dx.col(0) = x0 - in.x.col(0);
 
-//     double *A = qp.A;
-//     double *B = qp.B;
-//     double *b = qp.a;
+    for(i=0;i<N;i++){       
+        out.dx.col(i+1) = qp.A.block(0,i*nx,nx,nx)*out.dx.col(i)+qp.B.block(0,i*nu,nx,nu)*out.du.col(i)+qp.a.col(i);
+    }
 
-//     int i;
-//     char *nTrans = "N";
-//     double one_d = 1.0;
-//     int one_i = 1;
+    in.x += out.dx;
+    in.u += out.du;
 
-//     for(i=0;i<N;i++){
-//         memcpy(dx+(i+1)*nx, b+i*nx, nx*sizeof(double));          
-//         dgemv_(nTrans,&nx,&nx,&one_d,A+i*nx*nx,&nx,dx+i*nx,&one_i,&one_d,dx+(i+1)*nx,&one_i);
-//         dgemv_(nTrans,&nx,&nu,&one_d,B+i*nx*nu,&nx,du+i*nu,&one_i,&one_d,dx+(i+1)*nx,&one_i);
-//     }
-
-//     return 0;
-//  }
+ }
 

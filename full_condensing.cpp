@@ -11,8 +11,8 @@ void full_condensing_workspace_init(model_size& size, full_condensing_workspace&
     int nbgN = size.nbgN;
     int N = size.N;
 
-    cond_work.Hc = MatrixXd::Zero(N*nu,N*nu);
-    cond_work.Cc = MatrixXd::Zero(N*nbx+N*nbg+nbgN,N*nu);
+    cond_work.Hc = Matrix<double, Dynamic, Dynamic, RowMajor>::Zero(N*nu,N*nu);
+    cond_work.Cc = Matrix<double, Dynamic, Dynamic, RowMajor>::Zero(N*nbx+N*nbg+nbgN,N*nu);
     cond_work.gc = VectorXd::Zero(N*nu);
     cond_work.lcc = VectorXd::Zero(N*nbx+N*nbg+nbgN);
     cond_work.ucc = VectorXd::Zero(N*nbx+N*nbg+nbgN);

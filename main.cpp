@@ -1,7 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include "mpc_common.hpp"
 #include "rti_step.hpp"
+#include "casadi_wrapper.hpp"
 
 using namespace std;
 int main()
@@ -18,15 +20,15 @@ int main()
     size.nbx = 1;
     size.nbg = 0;
     size.nbgN = 0;
-    size.N = 5;
-    size.nbx_idx=(int*)calloc(size.nbx, sizeof(int));
+    size.N = 40;
+    size.nbx_idx = new int[size.nbx];            
     size.nbx_idx[0]=0;
     
     // initialize MPC input
     rti_step_workspace rti_work;
-
     rti_step_init(size, rti_work);
 
+    // initial condition
     rti_work.x0(1) = M_PI;
 
     int i;
@@ -51,29 +53,59 @@ int main()
 
     rti_work.in.reg = 1E-8;
 
-    rti_step(size, rti_work);
+    rti_work.sample = 0;
+    double Tf=0.1, Ts=0.05,t=0;
 
-    // cout <<"a="<<endl<<rti_work.qp.a<<endl;
-    // cout <<"A="<<endl<<rti_work.qp.A.block(0,0,size.nx,size.nx)<<endl;
-    // cout <<"B="<<endl<<rti_work.qp.B.block(0,0,size.nx,size.nu)<<endl;
-    // cout <<"Q="<<endl<<rti_work.qp.Q.block(0,0,size.nx,size.nx)<<endl;
-    // cout <<"S="<<endl<<rti_work.qp.S.block(0,0,size.nx,size.nu)<<endl;
-    // cout <<"R="<<endl<<rti_work.qp.R.block(0,0,size.nu,size.nu)<<endl;
-    // cout <<"gx="<<endl<<rti_work.qp.gx.col(0)<<endl;
-    // cout <<"gu="<<endl<<rti_work.qp.gu.col(0)<<endl;
-    // cout <<"lb_u="<<endl<<rti_work.qp.lb_u<<endl;
-    // cout <<"lb_x="<<endl<<rti_work.qp.lb_x<<endl;
+    double *simu_in[3];
+    double *simu_out[1];
+    simu_in[2] = rti_work.in.p.col(0).data();
 
-    // cout <<"Hc="<<endl<<rti_work.cond_work.Hc<<endl;
-    // cout <<"Cc="<<endl<<rti_work.cond_work.Cc<<endl;
-    // cout <<"gc="<<endl<<rti_work.cond_work.gc<<endl;
-    // cout <<"lcc="<<endl<<rti_work.cond_work.lcc<<endl;
-    // cout <<"ucc="<<endl<<rti_work.cond_work.ucc<<endl;
+    ofstream myfile;
+    myfile.open ("data.txt");
 
-    cout <<"xOpt="<<endl<<rti_work.out.dx<<endl;
-    cout <<"lam_Opt="<<endl<<rti_work.out.lam<<endl;
+    while(t<Tf){
+        
+        // call RTI routine
+        rti_step(size, rti_work);
 
-    free(size.nbx_idx);
+        myfile << "Sample:" << rti_work.sample << endl;
+        myfile << "  " << rti_work.qp.A.block(0,0,size.nx,5*size.nx) << endl;
+
+        // feedback
+        simu_in[0] = rti_work.in.x.col(0).data();
+        simu_in[1] = rti_work.in.u.col(0).data();
+        simu_out[0] = rti_work.x0.data();
+        F_Fun(simu_in, simu_out);
+
+        // update sampling and time
+        rti_work.sample++;
+        t += Ts;
+
+        // cout <<rti_work.x0.transpose()<<" | "<<rti_work.in.u.col(0) <<endl;
+        // shifting(optional)
+        for(i=0;i<size.N-1;i++){
+            rti_work.in.x.col(i) = rti_work.in.x.col(i+1);
+            rti_work.in.u.col(i) = rti_work.in.u.col(i+1);
+        }
+        rti_work.in.x.col(size.N-1) = rti_work.in.x.col(size.N);   
+
+    }
+
+    myfile.close();
+    
+    // cout <<"du="<<endl<<rti_work.out.du<<endl;
+    // cout <<"dx0="<<endl<<rti_work.out.dx.block(0,0,size.nx,10)<<endl;
+    // cout <<"dx1="<<endl<<rti_work.out.dx.block(0,10,size.nx,10)<<endl;
+    // cout <<"dx2="<<endl<<rti_work.out.dx.block(0,20,size.nx,10)<<endl;
+    // cout <<"dx3="<<endl<<rti_work.out.dx.block(0,30,size.nx,11)<<endl;
+    // cout <<"mu_u="<<endl<<rti_work.out.mu_u.transpose()<<endl;
+    // cout <<"mu_x="<<endl<<rti_work.out.mu_x.transpose()<<endl;
+    // cout <<"mu_g="<<endl<<rti_work.out.mu_g.transpose()<<endl;
+
+    delete [] size.nbx_idx;
+    size.nbx_idx = NULL;
+
+    rti_step_free(rti_work);
 
     return 0;
 }
