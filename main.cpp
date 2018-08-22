@@ -79,7 +79,7 @@ int main()
         t += Ts;
 
         // store the closed-loop results
-        myfile <<"Sample " << rti_work.sample <<": " << rti_work.x0.transpose() << " | " << rti_work.in.u.col(0) << endl;
+        myfile <<"Sample " << rti_work.sample <<": " << rti_work.x0.transpose() << " | " << rti_work.in.u.col(0) <<" |CPT=: " << rti_work.CPT << "ms" <<endl;
 
         // shifting(optional)
         for(i=0;i<size.N-1;i++){
@@ -92,15 +92,6 @@ int main()
 
     myfile.close();
     
-    // cout <<"du="<<endl<<rti_work.out.du<<endl;
-    // cout <<"dx0="<<endl<<rti_work.out.dx.block(0,0,size.nx,10)<<endl;
-    // cout <<"dx1="<<endl<<rti_work.out.dx.block(0,10,size.nx,10)<<endl;
-    // cout <<"dx2="<<endl<<rti_work.out.dx.block(0,20,size.nx,10)<<endl;
-    // cout <<"dx3="<<endl<<rti_work.out.dx.block(0,30,size.nx,11)<<endl;
-    // cout <<"mu_u="<<endl<<rti_work.out.mu_u.transpose()<<endl;
-    // cout <<"mu_x="<<endl<<rti_work.out.mu_x.transpose()<<endl;
-    // cout <<"mu_g="<<endl<<rti_work.out.mu_g.transpose()<<endl;
-
     delete [] size.nbx_idx;
     size.nbx_idx = NULL;
 

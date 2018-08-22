@@ -5,6 +5,7 @@
 #include "qp_generation.hpp"
 #include "full_condensing.hpp"
 #include "qpsolver.hpp"
+#include "Timer.h"
 
 typedef struct{
     qp_in in;
@@ -18,6 +19,8 @@ typedef struct{
     VectorXd x0;
 
     int sample;
+    Timer timer;
+    double CPT;
 }rti_step_workspace;
 
 void rti_step_init(model_size& size, rti_step_workspace& rti_work);

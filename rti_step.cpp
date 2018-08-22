@@ -3,6 +3,7 @@
 #include "full_condensing.hpp"
 #include "qpsolver.hpp"
 #include "rti_step.hpp"
+#include "Timer.h"
 
 void rti_step_init(model_size& size, rti_step_workspace& rti_work)
 {
@@ -17,6 +18,8 @@ void rti_step_init(model_size& size, rti_step_workspace& rti_work)
 
 void rti_step(model_size& size, rti_step_workspace& rti_work)
 {
+    rti_work.timer.start();    
+
     qp_generation(size, rti_work.in, rti_work.qp_work, rti_work.qp);
 
     full_condensing(size, rti_work.cond_work, rti_work.in, rti_work.qp, rti_work.x0);
@@ -26,6 +29,8 @@ void rti_step(model_size& size, rti_step_workspace& rti_work)
 
     expand(size, rti_work.in, rti_work.qp, rti_work.out, rti_work.x0);
 
+    rti_work.timer.stop();
+    rti_work.CPT = rti_work.timer.getElapsedTimeInMilliSec();   
 }
 
 void rti_step_free(rti_step_workspace& rti_work)
