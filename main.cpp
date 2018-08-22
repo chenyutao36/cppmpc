@@ -28,7 +28,7 @@ int main()
     rti_step_workspace rti_work;
     rti_step_init(size, rti_work);
 
-    // initial condition
+    // initial condition and parameters
     rti_work.x0(1) = M_PI;
 
     int i;
@@ -54,7 +54,7 @@ int main()
     rti_work.in.reg = 1E-8;
 
     rti_work.sample = 0;
-    double Tf=0.1, Ts=0.05,t=0;
+    double Tf=4, Ts=0.05,t=0;
 
     double *simu_in[3];
     double *simu_out[1];
@@ -68,9 +68,6 @@ int main()
         // call RTI routine
         rti_step(size, rti_work);
 
-        myfile << "Sample:" << rti_work.sample << endl;
-        myfile << "  " << rti_work.qp.A.block(0,0,size.nx,5*size.nx) << endl;
-
         // feedback
         simu_in[0] = rti_work.in.x.col(0).data();
         simu_in[1] = rti_work.in.u.col(0).data();
@@ -81,7 +78,9 @@ int main()
         rti_work.sample++;
         t += Ts;
 
-        // cout <<rti_work.x0.transpose()<<" | "<<rti_work.in.u.col(0) <<endl;
+        // store the closed-loop results
+        myfile <<"Sample " << rti_work.sample <<": " << rti_work.x0.transpose() << " | " << rti_work.in.u.col(0) << endl;
+
         // shifting(optional)
         for(i=0;i<size.N-1;i++){
             rti_work.in.x.col(i) = rti_work.in.x.col(i+1);

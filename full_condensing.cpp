@@ -41,7 +41,7 @@ void full_condensing(model_size& size, full_condensing_workspace& cond_work,
     for(i=0;i<N;i++){
         cond_work.G.block(i*nx,i*nu,nx,nu) = qp.B.block(0,i*nu,nx,nu);
         for(j=i+1;j<N;j++)
-            cond_work.G.block(j*nx,i*nu,nx,nu) = qp.A.block(0,i*nx,nx,nx) * cond_work.G.block((j-1)*nx,i*nu,nx,nu);
+            cond_work.G.block(j*nx,i*nu,nx,nu) = qp.A.block(0,j*nx,nx,nx) * cond_work.G.block((j-1)*nx,i*nu,nx,nu);
     }
 
     /* Compute Hc */
@@ -83,7 +83,7 @@ void full_condensing(model_size& size, full_condensing_workspace& cond_work,
     /* compute L */
     cond_work.L.head(nx) = x0 - in.x.col(0);
     for(i=0;i<N;i++){
-        cond_work.L.segment((i+1)*nx,nx) = qp.A.block(0,i*nx,nx,nx)*cond_work.L.segment(i*nx,nx);
+        cond_work.L.segment((i+1)*nx,nx) = qp.A.block(0,i*nx,nx,nx)*cond_work.L.segment(i*nx,nx) + qp.a.col(i);
     }
 
     /* compute gc */
