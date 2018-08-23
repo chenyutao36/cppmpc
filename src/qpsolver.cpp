@@ -11,7 +11,6 @@ using namespace std;
 
 void qpoases_workspace_init(const model_size& size, qpoases_workspace &qpoases_work)
 {
-    int nx=size.nx;
     int nu=size.nu; 
     int nbg=size.nbg;
     int nbgN=size.nbgN;  
@@ -29,7 +28,6 @@ void solveQP(const model_size& size, full_condensing_workspace& cond_work,
     qp_problem& qp_data, qpoases_workspace &qpoases_work, qp_out& out,
     int sample)
 {
-    int nx=size.nx;
     int nu=size.nu; 
     int nbg=size.nbg;
     int nbgN=size.nbgN;  

@@ -45,7 +45,6 @@ void qp_problem_init(const model_size& size, qp_problem& qp)
     int nx=size.nx;
     int nu=size.nu;
     int nbx = size.nbx;
-    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
@@ -112,15 +111,12 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
     int nx = size.nx;
     int nu = size.nu;
     int ny = size.ny;
-    int nyN = size.nyN;
     int np = size.np;
     int nbx = size.nbx;
-    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
     int *nbx_idx = size.nbx_idx;
-    int *nbu_idx = size.nbu_idx;
 
     MatrixXd x = in.x;
     MatrixXd u = in.u;
