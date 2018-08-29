@@ -19,4 +19,4 @@ $(OUT): $(OBJ)
 
 clean: 
 	@echo "Cleaning up (examples)"
-	@rm -rf *.o *.exe
+	@rm -rf *.o *.exe *.txt

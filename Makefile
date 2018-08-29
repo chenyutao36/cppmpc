@@ -16,7 +16,7 @@ examples: src
 clean:
 	@cd src      && ${MAKE} -s clean
 	@cd examples && ${MAKE} -s clean
-	@cd lib      && echo "Cleaning up (libraries)" && rm -rf *.so
+	@echo "Cleaning up (libraries)" && rm -rf lib
 	@echo "Cleaning up (data)" && rm -rf *.txt
 	@cd model    && ${MAKE} -s clean
 

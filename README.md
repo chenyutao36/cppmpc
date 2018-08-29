@@ -1,6 +1,6 @@
 # cppmpc
 
-Installation Guid:
+Installation Guide:
 
 1. Download qpoases-3.2.0 at https://www.coin-or.org/download/source/qpOASES/ and install it linking with lapack and blas. (do not use qpoases-3.2.1 since there are some missing symbols while linking)
 
