@@ -8,7 +8,7 @@
 using namespace Eigen;
 using namespace std;
 
-void qp_in_init(const model_size& size, qp_in& in)
+qp_in& qp_in::init(model_size& size)
 {
     int nx = size.nx;
     int nu = size.nu;
@@ -21,26 +21,26 @@ void qp_in_init(const model_size& size, qp_in& in)
     int nbgN = size.nbgN;
     int N = size.N;
     
-    in.x = MatrixXd::Zero(nx,N+1);
-    in.u = MatrixXd::Zero(nu,N);
-    in.y = MatrixXd::Zero(ny,N);
-    in.yN = VectorXd::Zero(nyN);
-    in.p = MatrixXd::Zero(np,N+1);
-    in.W = MatrixXd::Zero(ny,ny);
-    in.WN = MatrixXd::Zero(nyN,nyN);
-    in.lbu = VectorXd::Zero(nbu);
-    in.ubu = VectorXd::Zero(nbu);
-    in.lbx = VectorXd::Zero(nbx);
-    in.ubx = VectorXd::Zero(nbx);
-    in.lbg = VectorXd::Zero(nbg);
-    in.ubg = VectorXd::Zero(nbg);
-    in.lbgN = VectorXd::Zero(nbgN);
-    in.ubgN = VectorXd::Zero(nbgN);
+    x = MatrixXd::Zero(nx,N+1);
+    u = MatrixXd::Zero(nu,N);
+    y = MatrixXd::Zero(ny,N);
+    yN = VectorXd::Zero(nyN);
+    p = MatrixXd::Zero(np,N+1);
+    W = MatrixXd::Zero(ny,ny);
+    WN = MatrixXd::Zero(nyN,nyN);
+    lbu = VectorXd::Zero(nbu);
+    ubu = VectorXd::Zero(nbu);
+    lbx = VectorXd::Zero(nbx);
+    ubx = VectorXd::Zero(nbx);
+    lbg = VectorXd::Zero(nbg);
+    ubg = VectorXd::Zero(nbg);
+    lbgN = VectorXd::Zero(nbgN);
+    ubgN = VectorXd::Zero(nbgN);
+
+    return *this;
 }
 
-
-
-void qp_problem_init(const model_size& size, qp_problem& qp)
+qp_problem& qp_problem::init(model_size& size)
 {
     int nx=size.nx;
     int nu=size.nu;
@@ -50,45 +50,49 @@ void qp_problem_init(const model_size& size, qp_problem& qp)
     int N = size.N;
     int *nbx_idx = size.nbx_idx;
 
-    qp.Q = MatrixXd::Zero(nx,(N+1)*nx);
-    qp.S = MatrixXd::Zero(nx,N*nu);
-    qp.R = MatrixXd::Zero(nu,N*nu);
-    qp.A = MatrixXd::Zero(nx,N*nx);
-    qp.B = MatrixXd::Zero(nx,N*nu);
-    qp.a = MatrixXd::Zero(nx,N);
-    qp.Cx = MatrixXd::Zero(nbx,nx);
-    qp.Cgx = MatrixXd::Zero(nbg,N*nx);
-    qp.CgN = MatrixXd::Zero(nbgN,nx);
-    qp.Cgu = MatrixXd::Zero(nbg,N*nu);
-    qp.gx = MatrixXd::Zero(nx,N+1);
-    qp.gu = MatrixXd::Zero(nu,N);
-    qp.lb_u = VectorXd::Zero(N*nu);
-    qp.ub_u = VectorXd::Zero(N*nu);
-    qp.lb_x = VectorXd::Zero(N*nbx);
-    qp.ub_x = VectorXd::Zero(N*nbx);
-    qp.lb_g = VectorXd::Zero(nbg*N+nbgN);
-    qp.ub_g = VectorXd::Zero(nbg*N+nbgN);
+    Q = MatrixXd::Zero(nx,(N+1)*nx);
+    S = MatrixXd::Zero(nx,N*nu);
+    R = MatrixXd::Zero(nu,N*nu);
+    A = MatrixXd::Zero(nx,N*nx);
+    B = MatrixXd::Zero(nx,N*nu);
+    a = MatrixXd::Zero(nx,N);
+    Cx = MatrixXd::Zero(nbx,nx);
+    Cgx = MatrixXd::Zero(nbg,N*nx);
+    CgN = MatrixXd::Zero(nbgN,nx);
+    Cgu = MatrixXd::Zero(nbg,N*nu);
+    gx = MatrixXd::Zero(nx,N+1);
+    gu = MatrixXd::Zero(nu,N);
+    lb_u = VectorXd::Zero(N*nu);
+    ub_u = VectorXd::Zero(N*nu);
+    lb_x = VectorXd::Zero(N*nbx);
+    ub_x = VectorXd::Zero(N*nbx);
+    lb_g = VectorXd::Zero(nbg*N+nbgN);
+    ub_g = VectorXd::Zero(nbg*N+nbgN);
 
     int i;
     for(i=0;i<nbx;i++)
-        qp.Cx(i,nbx_idx[i]) = 1.0;
+        Cx(i,nbx_idx[i]) = 1.0;
+
+    return *this;
 
 }
 
-void qp_workspace_init(const model_size& size, qp_workspace& work)
+qp_workspace& qp_workspace::init(model_size& size)
 {
     int nx=size.nx;
     int nu=size.nu;
     int ny=size.ny;
     int nyN=size.nyN;
 
-    work.Jx = MatrixXd::Zero(ny,nx);
-    work.Ju = MatrixXd::Zero(ny,nu);
-    work.JxN = MatrixXd::Zero(nyN,nx);
+    Jx = MatrixXd::Zero(ny,nx);
+    Ju = MatrixXd::Zero(ny,nu);
+    JxN = MatrixXd::Zero(nyN,nx);
+
+    return *this;
 
 }
 
-void qp_out_init(model_size& size, qp_out& out)
+qp_out& qp_out::init(model_size& size)
 {
     int nx=size.nx;
     int nu=size.nu; 
@@ -97,16 +101,18 @@ void qp_out_init(model_size& size, qp_out& out)
     int N = size.N;
     int nbx = size.nbx;
 
-    out.dx = MatrixXd::Zero(nx,N+1);
-    out.du = MatrixXd::Zero(nu,N);
-    out.lam = MatrixXd::Zero(nx,N+1);
-    out.mu_u = VectorXd::Zero(N*nu);   
-    out.mu_x = VectorXd::Zero(N*nbx);
-    out.mu_g = VectorXd::Zero(nbg*N+nbgN);
+    dx = MatrixXd::Zero(nx,N+1);
+    du = MatrixXd::Zero(nu,N);
+    lam = MatrixXd::Zero(nx,N+1);
+    mu_u = VectorXd::Zero(N*nu);   
+    mu_x = VectorXd::Zero(N*nbx);
+    mu_g = VectorXd::Zero(nbg*N+nbgN);
+
+    return *this;
 
 }
 
-void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, qp_problem& qp)
+void qp_generation(model_size& size, qp_in& in, qp_workspace& work, qp_problem& qp)
 {
     int nx = size.nx;
     int nu = size.nu;
@@ -226,7 +232,7 @@ void qp_generation(const model_size& size, const qp_in& in, qp_workspace& work, 
     
 }
 
-void expand(model_size& size, qp_in& in, qp_problem& qp, qp_out& out, const VectorXd& x0)
+void expand(model_size& size, qp_in& in, qp_problem& qp, qp_out& out, VectorXd& x0)
  {
     int nx = size.nx;
     int nu = size.nu;

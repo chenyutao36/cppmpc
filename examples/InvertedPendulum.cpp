@@ -24,9 +24,8 @@ int main()
     size.nbx_idx = new int[size.nbx];            
     size.nbx_idx[0]=0;
     
-    // initialize MPC input
-    rti_step_workspace rti_work;
-    rti_step_init(size, rti_work);
+    // create a RTI controller
+    rti_step_workspace rti_work(size);
 
     // initial condition and parameters
     rti_work.x0(1) = M_PI;
@@ -53,6 +52,7 @@ int main()
 
     rti_work.in.reg = 1E-8;
 
+    // prepare the closed-loop simulation
     rti_work.sample = 0;
     double Tf=4, Ts=0.05,t=0;
 
@@ -63,10 +63,11 @@ int main()
     ofstream myfile;
     myfile.open ("data.txt");
 
+    // start the simulation
     while(t<Tf){
         
-        // call RTI routine
-        rti_step(size, rti_work);
+        // call RTI solving routine
+        rti_work.step(size);
 
         // feedback
         simu_in[0] = rti_work.in.x.col(0).data();
@@ -90,12 +91,13 @@ int main()
 
     }
 
+    // free memory
     myfile.close();
-    
+      
     delete [] size.nbx_idx;
     size.nbx_idx = NULL;
-
-    rti_step_free(rti_work);
+    
+    rti_work.free();
 
     return 0;
 }

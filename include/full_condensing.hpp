@@ -4,22 +4,25 @@
 #include "mpc_common.hpp"
 #include "qp_generation.hpp"
 
-typedef struct{
-    Matrix<double, Dynamic, Dynamic, RowMajor> Hc;
-    Matrix<double, Dynamic, Dynamic, RowMajor> Cc;
-    VectorXd gc;
-    VectorXd lcc;
-    VectorXd ucc;
+using namespace Eigen;
 
-    MatrixXd G;
-    VectorXd L;
-    MatrixXd W;
-    VectorXd w;
-}full_condensing_workspace;
+class full_condensing_workspace{
+    public: 
+        Matrix<double, Dynamic, Dynamic, RowMajor> Hc;
+        Matrix<double, Dynamic, Dynamic, RowMajor> Cc;
+        VectorXd gc;
+        VectorXd lcc;
+        VectorXd ucc;
 
-void full_condensing_workspace_init(model_size& size, full_condensing_workspace& cond_work);
+        MatrixXd G;
+        VectorXd L;
+        MatrixXd W;
+        VectorXd w;
 
-void full_condensing(model_size& size, full_condensing_workspace& cond_work,
-    qp_in& in, qp_problem& qp, const VectorXd& x0);
+        full_condensing_workspace& init(model_size& size);
+
+        void full_condensing(model_size& size, qp_in& in, qp_problem& qp, VectorXd& x0);
+};
+
 
 #endif

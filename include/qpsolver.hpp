@@ -8,17 +8,17 @@
 
 USING_NAMESPACE_QPOASES
 
-typedef struct{
-    SQProblem *myQP;
-    Options *myOptions;
-}qpoases_workspace;
+class qpoases_workspace{
+    public:
+        SQProblem *myQP;
+        Options *myOptions;
 
-void qpoases_workspace_init(const model_size& size, qpoases_workspace &qpoases_work);
+        qpoases_workspace& init(model_size& size);
 
-void solveQP(const model_size& size, full_condensing_workspace& cond_work,
-    qp_problem& qp_data, qpoases_workspace &qpoases_work, qp_out& out,
-    int sample);
+        void solveQP(model_size& size, full_condensing_workspace& cond_work,
+            qp_problem& qp_data, qp_out& out, int sample);
 
-void qpoases_workspace_free(qpoases_workspace &qpoases_work);
+        void free();
+};
 
 #endif 

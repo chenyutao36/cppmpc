@@ -7,26 +7,28 @@
 #include "qpsolver.hpp"
 #include "Timer.h"
 
-typedef struct{
-    qp_in in;
-    qp_problem qp;
-    qp_workspace qp_work; 
-    qp_out out;
+class rti_step_workspace{
+    public:
+        rti_step_workspace() = default;
+        rti_step_workspace(model_size& size) {init(size);};
 
-    full_condensing_workspace cond_work;
-    qpoases_workspace qpoases_work; 
+        qp_in in;      
+        VectorXd x0;
+        int sample;      
+        double CPT;
+        
+        rti_step_workspace& init(model_size& size);
+        rti_step_workspace& step(model_size& size);
+        rti_step_workspace& free();
 
-    VectorXd x0;
+    private:
+        Timer timer;
+        qp_problem qp;
+        qp_workspace qp_work; 
+        qp_out out;
+        full_condensing_workspace cond_work;
+        qpoases_workspace qpoases_work; 
 
-    int sample;
-    Timer timer;
-    double CPT;
-}rti_step_workspace;
-
-void rti_step_init(model_size& size, rti_step_workspace& rti_work);
-
-void rti_step(model_size& size, rti_step_workspace& rti_work);
-
-void rti_step_free(rti_step_workspace& rti_work);
+};
 
 #endif

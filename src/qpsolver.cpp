@@ -9,7 +9,7 @@ USING_NAMESPACE_QPOASES
 
 using namespace std;
 
-void qpoases_workspace_init(const model_size& size, qpoases_workspace &qpoases_work)
+qpoases_workspace& qpoases_workspace::init(model_size& size)
 {
     int nu=size.nu; 
     int nbg=size.nbg;
@@ -17,16 +17,17 @@ void qpoases_workspace_init(const model_size& size, qpoases_workspace &qpoases_w
     int N = size.N;
     int nbx = size.nbx;
 
-    qpoases_work.myQP = new SQProblem(N*nu, N*nbx+N*nbg+nbgN);
-    qpoases_work.myOptions = new Options();
-    qpoases_work.myOptions->setToMPC();
-    qpoases_work.myOptions->printLevel = PL_NONE;
-    qpoases_work.myQP->setOptions(*qpoases_work.myOptions);
+    myQP = new SQProblem(N*nu, N*nbx+N*nbg+nbgN);
+    myOptions = new Options();
+    myOptions->setToMPC();
+    myOptions->printLevel = PL_NONE;
+    myQP->setOptions(*myOptions);
+
+    return *this;
 }
 
-void solveQP(const model_size& size, full_condensing_workspace& cond_work,
-    qp_problem& qp_data, qpoases_workspace &qpoases_work, qp_out& out,
-    int sample)
+void qpoases_workspace::solveQP(model_size& size, full_condensing_workspace& cond_work,
+    qp_problem& qp_data, qp_out& out, int sample)
 {
     int nu=size.nu; 
     int nbg=size.nbg;
@@ -37,21 +38,21 @@ void solveQP(const model_size& size, full_condensing_workspace& cond_work,
     int nWSR = 50;
 
     if(sample==0)
-        qpoases_work.myQP->init(cond_work.Hc.data(), cond_work.gc.data(), cond_work.Cc.data(), qp_data.lb_u.data(), qp_data.ub_u.data(), cond_work.lcc.data(), cond_work.ucc.data(), nWSR, 0);
+        myQP->init(cond_work.Hc.data(), cond_work.gc.data(), cond_work.Cc.data(), qp_data.lb_u.data(), qp_data.ub_u.data(), cond_work.lcc.data(), cond_work.ucc.data(), nWSR, 0);
     else
-        qpoases_work.myQP->hotstart(cond_work.Hc.data(), cond_work.gc.data(), cond_work.Cc.data(), qp_data.lb_u.data(), qp_data.ub_u.data(), cond_work.lcc.data(), cond_work.ucc.data(), nWSR, 0);
+        myQP->hotstart(cond_work.Hc.data(), cond_work.gc.data(), cond_work.Cc.data(), qp_data.lb_u.data(), qp_data.ub_u.data(), cond_work.lcc.data(), cond_work.ucc.data(), nWSR, 0);
 
 
     double yOpt[N*nu+N*nbx+N*nbg+nbgN];
-    qpoases_work.myQP->getPrimalSolution(out.du.data());
-    qpoases_work.myQP->getDualSolution(yOpt);
+    myQP->getPrimalSolution(out.du.data());
+    myQP->getDualSolution(yOpt);
     memcpy(out.mu_u.data(),yOpt,N*nu*sizeof(double));
     memcpy(out.mu_g.data(),yOpt+N*nu,(N*nbg+nbgN)*sizeof(double));
     memcpy(out.mu_x.data(),yOpt+N*nu+N*nbg+nbgN,N*nbx*sizeof(double));
 }
 
-void qpoases_workspace_free(qpoases_workspace &qpoases_work)
+void qpoases_workspace::free()
 {
-    delete qpoases_work.myQP;
-    delete qpoases_work.myOptions;
+    delete myQP;
+    delete myOptions;
 }

@@ -1,7 +1,7 @@
 CC=gcc
 CPP=g++
 AR=ar
-CPPFLAGS = -Wall -O3 -march=native -mfpmath=sse -fPIC
+CPPFLAGS = -Wall -O3 -march=native -mfpmath=sse -fPIC -std=c++11
 #CPPFLAGS_MAIN = -Wall -march=native -mfpmath=sse -pedantic -Wshadow -Wfloat-equal -O3 -Wconversion -Wsign-conversion -finline-functions -fPIC -DLINUX -D__NO_COPYRIGHT__
 ARFLAGS = rcs
 

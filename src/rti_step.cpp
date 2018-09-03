@@ -5,35 +5,40 @@
 #include "rti_step.hpp"
 #include "Timer.h"
 
-void rti_step_init(model_size& size, rti_step_workspace& rti_work)
+rti_step_workspace& rti_step_workspace::init(model_size& size)
 {
-    qp_in_init(size, rti_work.in);
-    qp_problem_init(size, rti_work.qp);
-    qp_workspace_init(size, rti_work.qp_work);
-    full_condensing_workspace_init(size, rti_work.cond_work);
-    qp_out_init(size, rti_work.out);
-    qpoases_workspace_init(size,rti_work.qpoases_work);
-    rti_work.x0 = VectorXd::Zero(size.nx);
+    in.init(size);
+    qp.init(size);
+    qp_work.init(size);
+    cond_work.init(size);
+    out.init(size);
+    qpoases_work.init(size);
+    x0 = VectorXd::Zero(size.nx);
+
+    return *this;
 }
 
-void rti_step(model_size& size, rti_step_workspace& rti_work)
+rti_step_workspace& rti_step_workspace::step(model_size& size)
 {
-    rti_work.timer.start();    
+    timer.start();    
 
-    qp_generation(size, rti_work.in, rti_work.qp_work, rti_work.qp);
+    qp_generation(size, in, qp_work, qp);
 
-    full_condensing(size, rti_work.cond_work, rti_work.in, rti_work.qp, rti_work.x0);
+    cond_work.full_condensing(size, in, qp, x0);
 
-    solveQP(size, rti_work.cond_work, rti_work.qp, rti_work.qpoases_work, rti_work.out,
-     rti_work.sample);
+    qpoases_work.solveQP(size, cond_work, qp, out, sample);
 
-    expand(size, rti_work.in, rti_work.qp, rti_work.out, rti_work.x0);
+    expand(size, in, qp, out, x0);
 
-    rti_work.timer.stop();
-    rti_work.CPT = rti_work.timer.getElapsedTimeInMilliSec();   
+    timer.stop();
+    CPT = timer.getElapsedTimeInMilliSec();  
+
+    return *this; 
 }
 
-void rti_step_free(rti_step_workspace& rti_work)
+rti_step_workspace& rti_step_workspace::free()
 {
-    qpoases_workspace_free(rti_work.qpoases_work);
+    qpoases_work.free();
+
+    return *this;
 }
