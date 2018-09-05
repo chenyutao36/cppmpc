@@ -17,3 +17,4 @@ LINK_DEPENDS = -llapack -lblas -lm
 CPPMPC_LINK = -L$(CPPMPC_LIB) -Wl,-rpath=$(CPPMPC_LIB) -lcppmpc
 MODEL_HEADER = $(CPPMPC_PATH)/model
 MODEL_LINK = -L$(CPPMPC_PATH)/model -Wl,-rpath=$(CPPMPC_PATH)/model -lmymodel
+

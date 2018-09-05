@@ -14,7 +14,7 @@ OBJ += qpsolver.o
 OBJ += rti_step.o
 OBJ += Timer.o
 
-all: directories $(CPPMPC_LIB)/libcppmpc.so
+all: directories $(CPPMPC_LIB)/libcppmpc.a $(CPPMPC_LIB)/libcppmpc.so
 
 directories: $(CPPMPC_LIB)
 
@@ -24,6 +24,10 @@ $(CPPMPC_LIB):
 $(CPPMPC_LIB)/libcppmpc.so: $(OBJ)
 	@echo "Create" $@
 	@$(CPP) -shared -o $(CPPMPC_LIB)/libcppmpc.so $(OBJ) $(QPOASES_LINK) $(LINK_DEPENDS)
+
+$(CPPMPC_LIB)/libcppmpc.a: $(OBJ)
+	@echo "Create" $@
+	@$(AR) $(ARFLAGS) $(CPPMPC_LIB)/libcppmpc.a $(OBJ)
 
 %.o: %.cpp
 	@echo "Create" $@

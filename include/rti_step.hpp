@@ -12,7 +12,8 @@ class rti_step_workspace{
         rti_step_workspace() = default;
         rti_step_workspace(model_size& size) {init(size);};
 
-        qp_in in;      
+        qp_in in;   
+        qp_out out;   
         VectorXd x0;
         int sample;      
         double CPT;
@@ -24,8 +25,7 @@ class rti_step_workspace{
     private:
         Timer timer;
         qp_problem qp;
-        qp_workspace qp_work; 
-        qp_out out;
+        qp_workspace qp_work;        
         full_condensing_workspace cond_work;
         qpoases_workspace qpoases_work; 
 

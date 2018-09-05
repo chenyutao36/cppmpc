@@ -5,13 +5,20 @@ IFLAGS = -I$(CPPMPC_HEADER) \
 
 OBJ += InvertedPendulum.o
 
-OUT += InvertedPendulum.exe
+OUT_STATIC += InvertedPendulum_s.exe
 
-all: $(OUT)
+OUT_DYNAMIC += InvertedPendulum_d.exe
 
-$(OUT): $(OBJ)
+all: $(OUT_STATIC) $(OUT_DYNAMIC)
+
+$(OUT_DYNAMIC): $(OBJ)
 	@echo "Creating" $@
-	@$(CPP) -o $@ $< $(CPPMPC_LINK) $(MODEL_LINK)
+	@$(CPP) -o $@ ../model/casadi_src.o $< $(CPPMPC_LINK)
+
+$(OUT_STATIC): $(OBJ)
+	@echo "Creating" $@
+	@$(CPP) -o $@ ../model/casadi_src.o $< $(CPPMPC_LIB)/libcppmpc.a $(QPOASES_LIB)/libqpOASES.a -lblas -llapack
+	# @$(CPP) -o $@ ../model/casadi_src.o $< -Wl,--start-group $(QPOASES_LIB)/libqpOASES.a $(CPPMPC_LIB)/libcppmpc.a -Wl,--end-group -lblas -llapack
 
 %.o: %.cpp
 	@echo "Creating" $@
