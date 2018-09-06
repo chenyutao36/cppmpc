@@ -8,7 +8,7 @@ MKDIR_P = mkdir -p
 
 OBJ += mpc_common.o
 OBJ += casadi_wrapper.o
-OBJ += qp_generation.o
+OBJ += qp_problem.o
 OBJ += full_condensing.o
 OBJ += qpsolver.o
 OBJ += rti_step.o

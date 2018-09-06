@@ -2,7 +2,7 @@
 #define FULL_CONDENSING_H_
 
 #include "mpc_common.hpp"
-#include "qp_generation.hpp"
+#include "qp_problem.hpp"
 
 using namespace Eigen;
 
@@ -21,7 +21,7 @@ class full_condensing_workspace{
 
         full_condensing_workspace& init(model_size& size);
 
-        void full_condensing(model_size& size, qp_in& in, qp_problem& qp, VectorXd& x0);
+        full_condensing_workspace& full_condensing(model_size& size, qp_problem& qp, VectorXd& x0);
 };
 
 

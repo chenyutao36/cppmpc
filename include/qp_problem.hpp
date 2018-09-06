@@ -1,5 +1,5 @@
-#ifndef QP_GENERATION_H_
-#define QP_GENERATION_H_
+#ifndef QP_PROBLEM_H_
+#define QP_PROBLEM_H_
 
 #include <Eigen/Dense>
 #include "mpc_common.hpp"
@@ -28,7 +28,7 @@ class qp_in{
         qp_in& init(model_size& size);
 };
 
-class qp_problem{
+class qp_data{
     public:
         MatrixXd Q;
         MatrixXd S;
@@ -49,7 +49,7 @@ class qp_problem{
         VectorXd lb_g;
         VectorXd ub_g;
     
-        qp_problem& init(model_size& size);
+        qp_data& init(model_size& size);
 };
 
 class qp_workspace{
@@ -73,7 +73,16 @@ class qp_out{
         qp_out& init(model_size& size);
 };
 
-void qp_generation(model_size& size, qp_in& in, qp_workspace& work, qp_problem& qp);
-void expand(model_size& size, qp_in& in, qp_problem& qp, qp_out& out, VectorXd& x0);
+class qp_problem{
+    public:
+        qp_in in;
+        qp_data data;
+        qp_workspace work;
+        qp_out out;
+
+        qp_problem& init(model_size& size);
+        qp_problem& generateQP(model_size& size);
+        qp_problem& expandSol(model_size& size, VectorXd& x0);
+};
 
 #endif

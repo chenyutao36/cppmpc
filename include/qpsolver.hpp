@@ -2,7 +2,7 @@
 #define QPSOLVER_H_
 
 #include "mpc_common.hpp"
-#include "qp_generation.hpp"
+#include "qp_problem.hpp"
 #include "full_condensing.hpp"
 #include <qpOASES.hpp>
 
@@ -15,10 +15,9 @@ class qpoases_workspace{
 
         qpoases_workspace& init(model_size& size);
 
-        void solveQP(model_size& size, full_condensing_workspace& cond_work,
-            qp_problem& qp_data, qp_out& out, int sample);
+        void solveQP(model_size& size, qp_problem& qp, full_condensing_workspace& cond_work, int sample);
 
-        void free();
+        qpoases_workspace& free();
 };
 
 #endif 

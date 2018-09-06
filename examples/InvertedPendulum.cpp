@@ -32,25 +32,25 @@ int main()
 
     int i;
     for(i=0;i<size.N+1;i++){
-        rti_work.in.x(1,i) = M_PI;
+        rti_work.QP.in.x(1,i) = M_PI;
     }
-    rti_work.in.W(0,0) = 10; 
-    rti_work.in.W(1,1) = 10; 
-    rti_work.in.W(2,2) = 0.1; 
-    rti_work.in.W(3,3) = 0.1; 
-    rti_work.in.W(4,4) = 0.01;
+    rti_work.QP.in.W(0,0) = 10; 
+    rti_work.QP.in.W(1,1) = 10; 
+    rti_work.QP.in.W(2,2) = 0.1; 
+    rti_work.QP.in.W(3,3) = 0.1; 
+    rti_work.QP.in.W(4,4) = 0.01;
 
-    rti_work.in.WN(0,0) = 10; 
-    rti_work.in.WN(1,1) = 10; 
-    rti_work.in.WN(2,2) = 0.1; 
-    rti_work.in.WN(3,3) = 0.1;
+    rti_work.QP.in.WN(0,0) = 10; 
+    rti_work.QP.in.WN(1,1) = 10; 
+    rti_work.QP.in.WN(2,2) = 0.1; 
+    rti_work.QP.in.WN(3,3) = 0.1;
 
-    rti_work.in.lbu(0) = -20; 
-    rti_work.in.ubu(0) = 20;
-    rti_work.in.lbx(0) = -2; 
-    rti_work.in.ubx(0) = 2;
+    rti_work.QP.in.lbu(0) = -20; 
+    rti_work.QP.in.ubu(0) = 20;
+    rti_work.QP.in.lbx(0) = -2; 
+    rti_work.QP.in.ubx(0) = 2;
 
-    rti_work.in.reg = 1E-8;
+    rti_work.QP.in.reg = 1E-8;
 
     // prepare the closed-loop simulation
     rti_work.sample = 0;
@@ -58,7 +58,7 @@ int main()
 
     double *simu_in[3];
     double *simu_out[1];
-    simu_in[2] = rti_work.in.p.col(0).data();
+    simu_in[2] = rti_work.QP.in.p.col(0).data();
 
     ofstream myfile;
     myfile.open ("data.txt");
@@ -67,11 +67,11 @@ int main()
     while(t<Tf){
         
         // call RTI solving routine
-        rti_work.step(size);
+        rti_work.step();
 
         // feedback
-        simu_in[0] = rti_work.in.x.col(0).data();
-        simu_in[1] = rti_work.in.u.col(0).data();
+        simu_in[0] = rti_work.QP.in.x.col(0).data();
+        simu_in[1] = rti_work.QP.in.u.col(0).data();
         simu_out[0] = rti_work.x0.data();
         F_Fun(simu_in, simu_out);
 
@@ -80,14 +80,14 @@ int main()
         t += Ts;
 
         // store the closed-loop results
-        myfile <<"Sample " << rti_work.sample <<": " << rti_work.x0.transpose() << " | " << rti_work.in.u.col(0) <<" |CPT=: " << rti_work.CPT << "ms" <<endl;
+        myfile <<"Sample " << rti_work.sample <<": " << rti_work.x0.transpose() << " | " << rti_work.QP.in.u.col(0) <<" |CPT=: " << rti_work.CPT << "ms" <<endl;
 
         // shifting(optional)
         for(i=0;i<size.N-1;i++){
-            rti_work.in.x.col(i) = rti_work.in.x.col(i+1);
-            rti_work.in.u.col(i) = rti_work.in.u.col(i+1);
+            rti_work.QP.in.x.col(i) = rti_work.QP.in.x.col(i+1);
+            rti_work.QP.in.u.col(i) = rti_work.QP.in.u.col(i+1);
         }
-        rti_work.in.x.col(size.N-1) = rti_work.in.x.col(size.N);   
+        rti_work.QP.in.x.col(size.N-1) = rti_work.QP.in.x.col(size.N);   
 
     }
 

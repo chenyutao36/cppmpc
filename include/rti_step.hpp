@@ -2,7 +2,7 @@
 #define RTI_STEP_H_
 
 #include "mpc_common.hpp"
-#include "qp_generation.hpp"
+#include "qp_problem.hpp"
 #include "full_condensing.hpp"
 #include "qpsolver.hpp"
 #include "Timer.h"
@@ -12,20 +12,18 @@ class rti_step_workspace{
         rti_step_workspace() = default;
         rti_step_workspace(model_size& size) {init(size);};
 
-        qp_in in;   
-        qp_out out;   
-        VectorXd x0;
-        int sample;      
-        double CPT;
+        model_size size; // problem dimension
+        qp_problem QP;   // QP subproblem
+        VectorXd x0;     // current state
+        int sample;      // current sample
+        double CPT;      // computation time
         
         rti_step_workspace& init(model_size& size);
-        rti_step_workspace& step(model_size& size);
+        rti_step_workspace& step();
         rti_step_workspace& free();
 
     private:
-        Timer timer;
-        qp_problem qp;
-        qp_workspace qp_work;        
+        Timer timer;       
         full_condensing_workspace cond_work;
         qpoases_workspace qpoases_work; 
 
