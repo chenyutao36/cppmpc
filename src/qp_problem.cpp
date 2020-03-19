@@ -1,6 +1,5 @@
-
 #include <iostream>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include "mpc_common.hpp"
 #include "qp_problem.hpp"
 #include "casadi_wrapper.hpp"
@@ -20,14 +19,14 @@ qp_in& qp_in::init(model_size& size)
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
-    
+
     x = MatrixXd::Zero(nx,N+1);
     u = MatrixXd::Zero(nu,N);
     y = MatrixXd::Zero(ny,N);
     yN = VectorXd::Zero(nyN);
     p = MatrixXd::Zero(np,N+1);
-    W = MatrixXd::Zero(ny,ny);
-    WN = MatrixXd::Zero(nyN,nyN);
+    W = MatrixXd::Zero(ny,N);
+    WN = VectorXd::Zero(nyN);
     lbu = VectorXd::Zero(nbu);
     ubu = VectorXd::Zero(nbu);
     lbx = VectorXd::Zero(nbx);
@@ -45,25 +44,26 @@ qp_data& qp_data::init(model_size& size)
     int nx=size.nx;
     int nu=size.nu;
     int nbx = size.nbx;
+    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
-    int *nbx_idx = size.nbx_idx;
+    int* nbx_idx = size.nbx_idx;
 
     Q = MatrixXd::Zero(nx,(N+1)*nx);
     S = MatrixXd::Zero(nx,N*nu);
     R = MatrixXd::Zero(nu,N*nu);
     A = MatrixXd::Zero(nx,N*nx);
     B = MatrixXd::Zero(nx,N*nu);
-    a = MatrixXd::Zero(nx,N);
     Cx = MatrixXd::Zero(nbx,nx);
     Cgx = MatrixXd::Zero(nbg,N*nx);
-    CgN = MatrixXd::Zero(nbgN,nx);
     Cgu = MatrixXd::Zero(nbg,N*nu);
+    CgN = MatrixXd::Zero(nbgN,nx);
     gx = MatrixXd::Zero(nx,N+1);
     gu = MatrixXd::Zero(nu,N);
-    lb_u = VectorXd::Zero(N*nu);
-    ub_u = VectorXd::Zero(N*nu);
+    a = MatrixXd::Zero(nx,N);
+    lb_u = VectorXd::Zero(N*nbu);
+    ub_u = VectorXd::Zero(N*nbu);
     lb_x = VectorXd::Zero(N*nbx);
     ub_x = VectorXd::Zero(N*nbx);
     lb_g = VectorXd::Zero(nbg*N+nbgN);
@@ -77,34 +77,19 @@ qp_data& qp_data::init(model_size& size)
 
 }
 
-qp_workspace& qp_workspace::init(model_size& size)
-{
-    int nx=size.nx;
-    int nu=size.nu;
-    int ny=size.ny;
-    int nyN=size.nyN;
-
-    Jx = MatrixXd::Zero(ny,nx);
-    Ju = MatrixXd::Zero(ny,nu);
-    JxN = MatrixXd::Zero(nyN,nx);
-
-    return *this;
-
-}
-
 qp_out& qp_out::init(model_size& size)
 {
     int nx=size.nx;
-    int nu=size.nu; 
+    int nu=size.nu;
     int nbg=size.nbg;
-    int nbgN=size.nbgN;  
+    int nbgN=size.nbgN;
     int N = size.N;
     int nbx = size.nbx;
 
     dx = MatrixXd::Zero(nx,N+1);
     du = MatrixXd::Zero(nu,N);
     lam = MatrixXd::Zero(nx,N+1);
-    mu_u = VectorXd::Zero(N*nu);   
+    mu_u = VectorXd::Zero(N*nu);
     mu_x = VectorXd::Zero(N*nbx);
     mu_g = VectorXd::Zero(nbg*N+nbgN);
 
@@ -116,7 +101,6 @@ qp_problem& qp_problem::init(model_size& size)
 {
     in.init(size);
     data.init(size);
-    work.init(size);
     out.init(size);
 
     return *this;
@@ -129,91 +113,90 @@ qp_problem& qp_problem::generateQP(model_size& size)
     int ny = size.ny;
     int np = size.np;
     int nbx = size.nbx;
+    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
-    int *nbx_idx = size.nbx_idx;
-               
-    int i=0,j=0;
+    int* nbx_idx = size.nbx_idx;
+    int* nbu_idx = size.nbu_idx;
 
-    // allocate array of pointers   
+    int i, j;
+
+    // allocate array of pointers
     double *casadi_in[5];
-    double *casadi_out[2];    
-    casadi_in[4] = in.W.data();
-                      
+    double *casadi_out[3];
+
     // start loop
-    for(i=0;i<N;i++){
+    for(i=0; i<N; i++)
+    {
         casadi_in[0] = in.x.data()+i*nx;
         casadi_in[1] = in.u.data()+i*nu;
         casadi_in[2] = in.p.data()+i*np;
         casadi_in[3] = in.y.data()+i*ny;
-        
+        casadi_in[4] = in.W.data()+i*ny;
         // control bounds
-        data.lb_u.segment(i*nu,nu) = in.lbu-in.u.col(i);
-        data.ub_u.segment(i*nu,nu) = in.ubu-in.u.col(i);
-          
+        for (j=0; j<nbu; j++)
+        {
+            data.lb_u(i*nbu+j) = in.lbu(j)-in.u(nbu_idx[j],i);
+            data.ub_u(i*nbu+j) = in.ubu(j)-in.u(nbu_idx[j],i);
+        }
         // state bounds
-        for (j=0;j<nbx;j++){
+        for (j=0; j<nbx; j++)
+        {
             data.lb_x(i*nbx+j) = in.lbx(j)-in.x(nbx_idx[j],i+1);
             data.ub_x(i*nbx+j) = in.ubx(j)-in.x(nbx_idx[j],i+1);
         }
-        
-        // integration                             
+        // integration
         casadi_out[0] = data.a.data()+i*nx;
         F_Fun(casadi_in, casadi_out);
-        // equality residual        
+        // equality residual
         data.a.col(i) -= in.x.col(i+1);
-      
+
         // sensitivity computation
         casadi_out[0] = data.A.data() + i*nx*nx;
         casadi_out[1] = data.B.data() + i*nx*nu;
-        D_Fun(casadi_in, casadi_out);	
-                                
+        D_Fun(casadi_in, casadi_out);
         // Hessian
-        casadi_out[0] = work.Jx.data();
-        casadi_out[1] = work.Ju.data();
-        Ji_Fun(casadi_in, casadi_out);
+        casadi_out[0] = data.Q.data()+i*nx*nx;
+        casadi_out[1] = data.R.data()+i*nu*nu;
+        casadi_out[2] = data.S.data()+i*nx*nu;
+        Hi_Fun(casadi_in, casadi_out);
 
-        data.Q.block(0,i*nx,nx,nx) = work.Jx.transpose() * work.Jx;
-        data.S.block(0,i*nu,nx,nu) = work.Jx.transpose() * work.Ju;
-        data.R.block(0,i*nu,nu,nu) = work.Ju.transpose() * work.Ju;
         regularization(nx, data.Q.data()+i*nx*nx, in.reg);
         regularization(nu, data.R.data()+i*nu*nu, in.reg);
-                
         // gradient
         casadi_out[0] = data.gx.data()+i*nx;
         casadi_out[1] = data.gu.data()+i*nu;
         gi_Fun(casadi_in, casadi_out);
-
-        //constraints          
-        if (nbg>0){       
+        //constraints
+        if (nbg > 0)
+        {
             casadi_out[0] = data.lb_g.data() + i*nbg;
             path_con_Fun(casadi_in, casadi_out);
             // constraint residual
             data.ub_g.segment(i*nbg,nbg) = in.ubg - data.lb_g.segment(i*nbg,nbg);
             data.lb_g.segment(i*nbg,nbg) = in.lbg - data.lb_g.segment(i*nbg,nbg);
-            
+
             // constraint Jacobian
             casadi_out[0] = data.Cgx.data()+i*nbg*nx;
             casadi_out[1] = data.Cgu.data()+i*nbg*nu;
             Ci_Fun(casadi_in, casadi_out);
         }
     }
-    
     // the terminal stage
     casadi_in[0] = in.x.data()+N*nx;
     casadi_in[1] = in.p.data()+N*np;
     casadi_in[2] = in.yN.data();
     casadi_in[3] = in.WN.data();
-    
-    casadi_out[0] = work.JxN.data();
-    JN_Fun(casadi_in, casadi_out);
-    data.Q.block(0,N*nx,nx,nx) = work.JxN.transpose() * work.JxN;
-    
+    casadi_out[0] = data.Q.data()+N*nx*nx;
+    HN_Fun(casadi_in, casadi_out);
+    regularization(nx, data.Q.data()+N*nx*nx, in.reg);
+
     casadi_out[0] = data.gx.data()+N*nx;
     gN_Fun(casadi_in, casadi_out);
 
-    if (nbgN>0){
+    if (nbgN > 0)
+    {
         casadi_out[0] = data.lb_g.data() + N*nbg;
         path_con_N_Fun(casadi_in, casadi_out);
         data.ub_g.segment(N*nbg,nbgN) = in.ubgN - data.lb_g.segment(N*nbg,nbgN);
@@ -224,26 +207,54 @@ qp_problem& qp_problem::generateQP(model_size& size)
     }
 
     return *this;
-    
 }
 
 qp_problem& qp_problem::expandSol(model_size& size, VectorXd& x0)
- {
+{
     int nx = size.nx;
     int nu = size.nu;
     int N = size.N;
 
-    int i;
     out.dx.col(0) = x0 - in.x.col(0);
 
-    for(i=0;i<N;i++){       
+    for (int i=0; i<N; i++)
         out.dx.col(i+1) = data.A.block(0,i*nx,nx,nx)*out.dx.col(i)+data.B.block(0,i*nu,nx,nu)*out.du.col(i)+data.a.col(i);
-    }
 
     in.x += out.dx;
     in.u += out.du;
 
     return *this;
+}
 
- }
+qp_problem& qp_problem::info(model_size& size, double& OBJ)
+{
+    int nx = size.nx;
+    int nu = size.nu;
+    int ny = size.ny;
+    int np = size.np;
+    int N = size.N;
 
+    // allocate array of pointers
+    double* casadi_in[5];
+    double* casadi_out[1];
+    VectorXd obj = VectorXd::Zero(1);
+    for (int i=0; i<N; i++)
+    {
+        casadi_in[0] = in.x.data()+i*nx;
+        casadi_in[1] = in.u.data()+i*nu;
+        casadi_in[2] = in.p.data()+i*np;
+        casadi_in[3] = in.y.data()+i*ny;
+        casadi_in[4] = in.W.data()+i*ny;
+        casadi_out[0] = obj.data();
+        obji_Fun(casadi_in, casadi_out);
+        OBJ += casadi_out[0][0];
+    }
+    casadi_in[0] = in.x.data()+N*nx;
+    casadi_in[1] = in.p.data()+N*np;
+    casadi_in[2] = in.yN.data();
+    casadi_in[3] = in.WN.data();
+    objN_Fun(casadi_in, casadi_out);
+    OBJ += casadi_out[0][0];
+
+    return *this;
+}

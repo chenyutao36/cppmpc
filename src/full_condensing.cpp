@@ -34,7 +34,7 @@ full_condensing_workspace& full_condensing_workspace::full_condensing(model_size
     int nbgN = size.nbgN;
     int N = size.N;
 
-    int idx = N*nbg+nbgN;      
+    int idx = N*nbg+nbgN;
 
     int i,j;
 
@@ -48,8 +48,8 @@ full_condensing_workspace& full_condensing_workspace::full_condensing(model_size
     /* Compute Hc */
     for(i=0;i<N;i++){
         W = qp.data.Q.block(0,N*nx,nx,nx) * G.block((N-1)*nx,i*nu,nx,nu);
-        for(j=N-1;j>i;j--){     
-            Hc.block(j*nu,i*nu,nu,nu) = qp.data.S.block(0,j*nu,nx,nu).transpose() * G.block((j-1)*nx,i*nu,nx,nu) + qp.data.B.block(0,j*nu,nx,nu).transpose() * W; 
+        for(j=N-1;j>i;j--){
+            Hc.block(j*nu,i*nu,nu,nu) = qp.data.S.block(0,j*nu,nx,nu).transpose() * G.block((j-1)*nx,i*nu,nx,nu) + qp.data.B.block(0,j*nu,nx,nu).transpose() * W;
             W = qp.data.Q.block(0,j*nx,nx,nx) * G.block((j-1)*nx,i*nu,nx,nu) + qp.data.A.block(0,j*nx,nx,nx).transpose() * W;
             Hc.block(i*nu,j*nu,nu,nu) = Hc.block(j*nu,i*nu,nu,nu).transpose();
         }
@@ -57,28 +57,28 @@ full_condensing_workspace& full_condensing_workspace::full_condensing(model_size
     }
 
     /* Compute Ccg */
-    if (nbg>0){         
+    if (nbg>0){
         for(i=0;i<N;i++){
             Cc.block(i*nbg,i*nu,nbg,nu) = qp.data.Cgu.block(0,i*nu,nbg,nu);
-            for(j=i+1;j<N;j++){   
+            for(j=i+1;j<N;j++){
                 Cc.block(j*nbg,i*nu,nbg,nu) = qp.data.Cgx.block(0,j*nx,nbg,nx)*G.block((j-1)*nx,i*nu,nx,nu);
-            }    
-        }  
+            }
+        }
     }
     /* Compute CcN */
-    if (nbgN>0){          
-        for(i=0;i<N;i++){                 
+    if (nbgN>0){
+        for(i=0;i<N;i++){
             Cc.block(N*nbg,i*nu,nbgN,nu) = qp.data.CgN * G.block((N-1)*nx,i*nu,nx,nu);
         }
     }
 
     /* Compute Ccx */
-    if (nbx>0){   
+    if (nbx>0){
         for(i=0;i<N;i++){
-            for(j=i+1;j<=N;j++) 
+            for(j=i+1;j<=N;j++)
                 Cc.block(idx+(j-1)*nbx,i*nu,nbx,nu) = qp.data.Cx * G.block((j-1)*nx,i*nu,nx,nu);
-                
-        }  
+
+        }
     }
 
     /* compute L */
@@ -96,21 +96,21 @@ full_condensing_workspace& full_condensing_workspace::full_condensing(model_size
     gc.head(nu) = qp.data.gu.col(0) + qp.data.S.leftCols(nu).transpose()*L.head(nx) + qp.data.B.leftCols(nu).transpose()*w;
 
     /* Compute cc */
-    if (nbg>0){ 
+    if (nbg>0){
         for(i=0;i<N;i++){
             lcc.segment(i*nbg,nbg) = qp.data.Cgx.block(0,i*nx,nbg,nx)*L.segment(i*nx,nx);
             ucc.segment(i*nbg,nbg) = qp.data.ub_g.segment(i*nbg,nbg) - lcc.segment(i*nbg,nbg);
-            lcc.segment(i*nbg,nbg) = qp.data.lb_g.segment(i*nbg,nbg) - lcc.segment(i*nbg,nbg);
-        }       
+            lcc.segment(i*nbg,nbg) = qp.data.lb_u.segment(i*nbg,nbg) - lcc.segment(i*nbg,nbg);
+        }
     }
     /* Compute ccN */
-    if (nbgN>0){ 
+    if (nbgN>0){
         lcc.segment(N*nbg,nbgN) = qp.data.CgN * L.tail(nx);
-        ucc.segment(N*nbg,nbgN) = qp.data.ub_g.segment(N*nbg,nbgN) - lcc.segment(N*nbg,nbgN);
-        lcc.segment(N*nbg,nbgN) = qp.data.lb_g.segment(N*nbg,nbgN) - lcc.segment(N*nbg,nbgN);
+        ucc.segment(N*nbg,nbgN) = qp.data.ub_u.segment(N*nbg,nbgN) - lcc.segment(N*nbg,nbgN);
+        lcc.segment(N*nbg,nbgN) = qp.data.lb_u.segment(N*nbg,nbgN) - lcc.segment(N*nbg,nbgN);
     }
-
-    if (nbx>0){       
+    /* Compute ccx */
+    if (nbx>0){
         for(i=0;i<N;i++){
             lcc.segment(idx+i*nbx,nbx) = qp.data.Cx * L.segment((i+1)*nx,nx);
             ucc.segment(idx+i*nbx,nbx) = qp.data.ub_x.segment(i*nbx,nbx) - lcc.segment(idx+i*nbx,nbx);

@@ -17,16 +17,16 @@ class rti_step_workspace{
         VectorXd x0;     // current state
         int sample;      // current sample
         double CPT;      // computation time
-        
+        double OBJ;
         rti_step_workspace& init(model_size& size);
         rti_step_workspace& step();
         rti_step_workspace& free();
+        rti_step_workspace& info();
 
     private:
-        Timer timer;       
+        Timer timer;
         full_condensing_workspace cond_work;
-        qpoases_workspace qpoases_work; 
-
+        qpoases_workspace qpoases_work;
 };
 
 #endif
