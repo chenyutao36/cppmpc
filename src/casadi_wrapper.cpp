@@ -9,8 +9,8 @@ void f_Fun(double **in, double **out){
 
     double *xn = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[3];
@@ -35,8 +35,8 @@ void vde_Fun(double **in, double **out){
     double *jac_x = out[0];
     double *jac_u = out[1];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[5];
@@ -62,8 +62,8 @@ void impl_f_Fun(double **in, double **out){
 
     double *res = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -87,8 +87,8 @@ void impl_jac_x_Fun(double **in, double **out){
 
     double *jac_x = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -112,8 +112,8 @@ void impl_jac_u_Fun(double **in, double **out){
 
     double *jac_u = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -137,8 +137,8 @@ void impl_jac_xdot_Fun(double **in, double **out){
 
     double *jac_xdot = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -162,8 +162,8 @@ void F_Fun(double **in, double **out) {
 
     double *x_out = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[3];
@@ -187,8 +187,8 @@ void D_Fun(double **in, double **out) {
     double *A = out[0];
     double *B = out[1];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[3];
@@ -215,8 +215,8 @@ void Hi_Fun(double **in, double **out) {
     double *Hu = out[1];
     double *Hxu = out[2];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[5];
@@ -243,8 +243,8 @@ void HN_Fun(double **in, double **out) {
 
     double *HN = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -271,8 +271,8 @@ void gi_Fun(double **in, double **out) {
     double *gx = out[0];
     double *gu = out[1];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[5];
@@ -298,8 +298,8 @@ void path_con_Fun(double **in, double **out) {
 
     double *ci = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[3];
@@ -322,8 +322,8 @@ void Ci_Fun(double **in, double **out) {
     double *Cx = out[0];
     double *Cu = out[1];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[3];
@@ -348,8 +348,8 @@ void gN_Fun(double **in, double **out) {
 
     double *gxN = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];
@@ -372,8 +372,8 @@ void path_con_N_Fun(double **in, double **out) {
 
     double *cN = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[2];
@@ -394,8 +394,8 @@ void CN_Fun(double **in, double **out) {
 
     double *CxN = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[2];
@@ -423,8 +423,8 @@ void adj_Fun(double **in, double **out) {
     double *adj_dG = out[1];
     double *adj_dB = out[2];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[7];
@@ -456,8 +456,8 @@ void adjN_Fun(double **in, double **out) {
     double *dobj = out[0];
     double *adj_dB = out[1];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[5];
@@ -484,8 +484,8 @@ void obji_Fun(double **in, double **out){
 
     double *obj = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[5];
@@ -510,8 +510,8 @@ void objN_Fun(double **in, double **out){
 
     double *objN = out[0];
 
-    void *casadi_mem = NULL;
-    int *casadi_iw = NULL;
+    int casadi_mem = 0;
+    long long int *casadi_iw = NULL;
     double *casadi_w = NULL;
 
     const double *casadi_arg[4];

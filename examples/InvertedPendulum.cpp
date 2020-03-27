@@ -56,7 +56,7 @@ int main()
 
     // prepare the closed-loop simulation
     rti_work.sample = 0;
-    double Tf=4, Ts=0.025,t=0;
+    double Tf=4, Ts=0.05,t=0;
 
     double *simu_in[3];
     double *simu_out[1];

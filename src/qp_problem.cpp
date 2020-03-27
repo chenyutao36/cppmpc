@@ -15,7 +15,6 @@ qp_in& qp_in::init(model_size& size)
     int nyN = size.nyN;
     int np = size.np;
     int nbx = size.nbx;
-    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
@@ -27,8 +26,8 @@ qp_in& qp_in::init(model_size& size)
     p = MatrixXd::Zero(np,N+1);
     W = MatrixXd::Zero(ny,N);
     WN = VectorXd::Zero(nyN);
-    lbu = VectorXd::Zero(nbu);
-    ubu = VectorXd::Zero(nbu);
+    lbu = VectorXd::Zero(nu);
+    ubu = VectorXd::Zero(nu);
     lbx = VectorXd::Zero(nbx);
     ubx = VectorXd::Zero(nbx);
     lbg = VectorXd::Zero(nbg);
@@ -44,7 +43,6 @@ qp_data& qp_data::init(model_size& size)
     int nx=size.nx;
     int nu=size.nu;
     int nbx = size.nbx;
-    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
@@ -62,8 +60,8 @@ qp_data& qp_data::init(model_size& size)
     gx = MatrixXd::Zero(nx,N+1);
     gu = MatrixXd::Zero(nu,N);
     a = MatrixXd::Zero(nx,N);
-    lb_u = VectorXd::Zero(N*nbu);
-    ub_u = VectorXd::Zero(N*nbu);
+    lb_u = VectorXd::Zero(N*nu);
+    ub_u = VectorXd::Zero(N*nu);
     lb_x = VectorXd::Zero(N*nbx);
     ub_x = VectorXd::Zero(N*nbx);
     lb_g = VectorXd::Zero(nbg*N+nbgN);
@@ -113,12 +111,10 @@ qp_problem& qp_problem::generateQP(model_size& size)
     int ny = size.ny;
     int np = size.np;
     int nbx = size.nbx;
-    int nbu = size.nbu;
     int nbg = size.nbg;
     int nbgN = size.nbgN;
     int N = size.N;
     int* nbx_idx = size.nbx_idx;
-    int* nbu_idx = size.nbu_idx;
 
     int i, j;
 
@@ -135,10 +131,10 @@ qp_problem& qp_problem::generateQP(model_size& size)
         casadi_in[3] = in.y.data()+i*ny;
         casadi_in[4] = in.W.data()+i*ny;
         // control bounds
-        for (j=0; j<nbu; j++)
+        for (j=0; j<nu; j++)
         {
-            data.lb_u(i*nbu+j) = in.lbu(j)-in.u(nbu_idx[j],i);
-            data.ub_u(i*nbu+j) = in.ubu(j)-in.u(nbu_idx[j],i);
+            data.lb_u(i*nu+j) = in.lbu(j)-in.u(j,i);
+            data.ub_u(i*nu+j) = in.ubu(j)-in.u(j,i);
         }
         // state bounds
         for (j=0; j<nbx; j++)
