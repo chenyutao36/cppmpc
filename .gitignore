@@ -1,0 +1,4 @@
+lib/
+**/*.o
+data.txt
+examples/*_d*
