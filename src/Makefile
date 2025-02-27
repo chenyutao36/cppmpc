@@ -1,6 +1,7 @@
 include ../make.mk
 
-IFLAGS = -I$(CPPMPC_HEADER) \
+IFLAGS = -I$(EIGEN_HEADER) \
+		 -I$(CPPMPC_HEADER) \
 	     -I$(QPOASES_HEADER) \
 		 -I$(MODEL_HEADER)
 

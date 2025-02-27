@@ -1,7 +1,9 @@
 include ../make.mk
 
 IFLAGS = -I$(CPPMPC_HEADER) \
-	     -I$(QPOASES_HEADER)
+	     -I$(QPOASES_HEADER) \
+		 -I$(LINALG_PATH) \
+		 -I$(EIGEN_HEADER)
 
 OBJ += InvertedPendulum.o
 
@@ -17,8 +19,13 @@ $(OUT_DYNAMIC): $(OBJ)
 
 $(OUT_STATIC): $(OBJ)
 	@echo "Creating" $@
-	@$(CPP) -o $@ ../model/casadi_src.o $< $(CPPMPC_LIB)/libcppmpc.a $(QPOASES_LIB)/libqpOASES.a -lblas -llapack
-	# @$(CPP) -o $@ ../model/casadi_src.o $< -Wl,--start-group $(QPOASES_LIB)/libqpOASES.a $(CPPMPC_LIB)/libcppmpc.a -Wl,--end-group -lblas -llapack
+	@$(CPP) -o $@ ../model/casadi_src.o $< \
+        -Wl,--start-group \
+        $(CPPMPC_LIB)/libcppmpc.a \
+        $(QPOASES_LIB)/libqpOASES.a \
+		$(LINALG_PATH)/libblas.a \
+		$(LINALG_PATH)/liblapack.a \
+        -Wl,--end-group
 
 %.o: %.cpp
 	@echo "Creating" $@
